@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AINCRAD CLIENT FREE FIRE</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0a0015, #200033, #0a0015);
+      color: #d0c0ff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* === Hiệu ứng hạt 7 màu cầu vồng === */
+    .particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: white;
+      opacity: 0.7;
+      box-shadow: 0 0 8px currentColor;
+      animation: float 20s infinite linear, rainbow 8s infinite linear;
+    }
+
+    /* Animation di chuyển ngẫu nhiên cho từng hạt */
+    @keyframes float {
+      0%   { transform: translate(0, 0) scale(1); }
+      25%  { transform: translate(var(--dx1), var(--dy1)) scale(1.2); }
+      50%  { transform: translate(var(--dx2), var(--dy2)) scale(0.8); }
+      75%  { transform: translate(var(--dx3), var(--dy3)) scale(1.1); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+
+    /* Hiệu ứng 7 màu chuyển động (hue-rotate full vòng) */
+    @keyframes rainbow {
+      0%   { filter: hue-rotate(0deg);   color: #ff0000; } /* đỏ */
+      14%  { filter: hue-rotate(51deg);  color: #ff7f00; } /* cam */
+      28%  { filter: hue-rotate(103deg); color: #ffff00; } /* vàng */
+      43%  { filter: hue-rotate(154deg); color: #00ff00; } /* xanh lá */
+      57%  { filter: hue-rotate(206deg); color: #0000ff; } /* xanh dương */
+      71%  { filter: hue-rotate(257deg); color: #4b0082; } /* chàm */
+      85%  { filter: hue-rotate(309deg); color: #8b00ff; } /* tím */
+      100% { filter: hue-rotate(360deg); color: #ff0000; }
+    }
+
+    /* Lớp overlay gradient nhẹ để tăng chiều sâu */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(50, 0, 100, 0.5), transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .container {
+      background: rgba(40, 20, 80, 0.92);
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 60px rgba(200, 100, 255, 0.5);
+      max-width: 460px;
+      width: 92%;
+      position: relative;
+      z-index: 1;
+      backdrop-filter: blur(10px);
+    }
+
+    h1 { color: #bb86fc; margin: 0 0 15px; font-size: 2.5em; text-shadow: 0 0 10px #bb86fc; }
+    .subtitle { color: #a080ff; margin-bottom: 30px; font-size: 1.15em; }
+
+    .btn {
+      background: linear-gradient(90deg, #ff00aa, #aa00ff, #00aaff, #00ffaa);
+      background-size: 400%;
+      color: white;
+      border: none;
+      padding: 16px 50px;
+      font-size: 1.3em;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin: 25px 0;
+      animation: btnRainbow 6s linear infinite;
+    }
+
+    @keyframes btnRainbow {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 400% 50%; }
+    }
+
+    .btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 15px 40px rgba(255, 0, 170, 0.6);
+    }
+
+    #progressSection, #keySection { display: none; }
+
+    .progress-bar {
+      background: #2c003e;
+      height: 30px;
+      border-radius: 15px;
+      margin: 25px 0;
+      overflow: hidden;
+      border: 2px solid #7e57c2;
+    }
+    .progress {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #ff00aa, #00ffaa, #aa00ff);
+      background-size: 300%;
+      animation: progressRainbow 4s linear infinite;
+      transition: width 0.4s ease;
+    }
+
+    @keyframes progressRainbow {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 300% 50%; }
+    }
+
+    .steps { text-align: left; margin: 20px 0; font-size: 1.1em; }
+    .step { margin: 12px 0; opacity: 0.7; transition: all 0.5s; }
+    .step.active { opacity: 1; color: #fff; font-weight: bold; text-shadow: 0 0 8px #fff; }
+    .step.done::before { content: "🌈 "; }
+
+    #keyDisplay {
+      background: #1a0033;
+      padding: 20px;
+      border-radius: 12px;
+      font-size: 1.8em;
+      color: #00ffaa;
+      margin: 30px 0;
+      word-break: break-all;
+      border: 2px dashed #ff00aa;
+      animation: rainbowBorder 8s linear infinite;
+      text-shadow: 0 0 10px currentColor;
+    }
+
+    @keyframes rainbowBorder {
+      0%   { border-color: #ff0000; color: #ff0000; }
+      14%  { border-color: #ff7f00; color: #ff7f00; }
+      28%  { border-color: #ffff00; color: #ffff00; }
+      43%  { border-color: #00ff00; color: #00ff00; }
+      57%  { border-color: #0000ff; color: #0000ff; }
+      71%  { border-color: #4b0082; color: #4b0082; }
+      85%  { border-color: #8b00ff; color: #8b00ff; }
+      100% { border-color: #ff0000; color: #ff0000; }
+    }
+
+    .copy-btn {
+      background: linear-gradient(90deg, #ff00aa, #00ffaa);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      font-size: 1.1em;
+      border-radius: 30px;
+      cursor: pointer;
+      margin-top: 15px;
+      box-shadow: 0 0 15px #00ffaa;
+    }
+  </style>
+</head>
+<body>
+
+<div class="overlay"></div>
+
+<!-- Particles container -->
+<div class="particles" id="particles"></div>
+
+<div class="container">
+  <h1>FREE KEY </h1>
+  <p class="subtitle">Nhấn nút để hoàn thành nhiệm vụ và nhận key <strong>AINCRAD CLIENT</strong></p>
+
+  <div id="startSection">
+    <button class="btn" onclick="startTasks()">GET KEY FREE</button>
+  </div>
+
+  <div id="progressSection">
+    <div class="progress-bar">
+      <div class="progress" id="progressBar"></div>
+    </div>
+    <p id="statusText">Đang xử lý...</p>
+
+    <div class="steps">
+      <div class="step" id="step1">Xác thực thiết bị (HWID)</div>
+      <div class="step" id="step2">Kiểm tra điều khoản sử dụng</div>
+      <div class="step" id="step3">Kết nối server </div>
+      <div class="step" id="step4">Unlock key miễn phí</div>
+      <div class="step" id="step5">Hoàn tất bảo mật</div>
+    </div>
+  </div>
+
+  <div id="keySection">
+    <p style="font-size:1.3em; color:#ce93d8;">Hoàn thành tất cả nhiệm vụ!</p>
+    <div id="keyDisplay">feb4d7a6-ad80-4af0-8c51-98852fe68587</div>
+    <button class="copy-btn" onclick="copyKey()">Nút Coppy Lỗi</button>
+    <p style="margin-top:25px; font-size:0.95em;">Key đã có hiệu lực. Dán vào menu để dùng.</p>
+  </div>
+</div>
+
+<script>
+// Tạo hạt particles rainbow động
+function createParticles() {
+  const container = document.getElementById("particles");
+  const colors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#8b00ff'];
+  const numParticles = 60;
+
+  for (let i = 0; i < numParticles; i++) {
+    const particle = document.createElement("div");
+    particle.classList.add("particle");
+
+    // Random kích thước 2-6px
+    const size = Math.random() * 4 + 2;
+    particle.style.width = `${size}px`;
+    particle.style.height = `${size}px`;
+
+    // Random vị trí ban đầu
+    particle.style.left = `${Math.random() * 100}vw`;
+    particle.style.top = `${Math.random() * 100}vh`;
+
+    // Random animation delay và biến di chuyển
+    const delay = Math.random() * 10;
+    particle.style.animationDelay = `${delay}s, ${delay}s`;
+
+    // Random hướng di chuyển (dx/dy)
+    particle.style.setProperty('--dx1', `${(Math.random() - 0.5) * 200}px`);
+    particle.style.setProperty('--dy1', `${(Math.random() - 0.5) * 200}px`);
+    particle.style.setProperty('--dx2', `${(Math.random() - 0.5) * 300}px`);
+    particle.style.setProperty('--dy2', `${(Math.random() - 0.5) * 300}px`);
+    particle.style.setProperty('--dx3', `${(Math.random() - 0.5) * 250}px`);
+    particle.style.setProperty('--dy3', `${(Math.random() - 0.5) * 250}px`);
+
+    // Màu khởi đầu random trong 7 màu
+    const colorIndex = Math.floor(Math.random() * colors.length);
+    particle.style.color = colors[colorIndex];
+
+    container.appendChild(particle);
+  }
+}
+
+createParticles();
+
+const REAL_KEY = "feb4d7a6-ad80-4af0-8c51-98852fe68587";
+
+function startTasks() {
+  document.getElementById("startSection").style.display = "none";
+  document.getElementById("progressSection").style.display = "block";
+
+  let progress = 0;
+  const progressBar = document.getElementById("progressBar");
+  const status = document.getElementById("statusText");
+  const steps = ["step1", "step2", "step3", "step4", "step5"];
+  let currentStep = 0;
+
+  const fakeTasks = [
+    { text: "Xác thực thiết bị thành công", delay: 1800 },
+    { text: "Kiểm tra điều khoản hoàn tất", delay: 1400 },
+    { text: "Kết nối server thành công", delay: 2200 },
+    { text: "Đang unlock key...", delay: 2800 },
+    { text: "Hoàn tất bảo mật - Key sẵn sàng!", delay: 1600 }
+  ];
+
+  const interval = setInterval(() => {
+    progress += Math.random() * 12 + 8;
+    if (progress > 100) progress = 100;
+    progressBar.style.width = progress + "%";
+
+    if (currentStep < steps.length && progress >= (currentStep + 1) * 20) {
+      const stepEl = document.getElementById(steps[currentStep]);
+      stepEl.classList.add("active", "done");
+      status.textContent = fakeTasks[currentStep].text;
+      currentStep++;
+    }
+
+    if (progress >= 100) {
+      clearInterval(interval);
+      setTimeout(() => {
+        document.getElementById("progressSection").style.display = "none";
+        document.getElementById("keySection").style.display = "block";
+      }, 1200);
+    }
+  }, 400);
+}
+
+function copyKey() {
+  navigator.clipboard.writeText(REAL_KEY).then(() => {
+    alert("Đã copy key: " + REAL_KEY);
+  }).catch(() => {
+    alert("Copy thủ công nhé: " + REAL_KEY);
+  });
+}
+</script>
+
+</body>
+</html>
